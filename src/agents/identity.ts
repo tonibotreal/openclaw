@@ -53,6 +53,11 @@ export function resolveResponsePrefix(cfg: OpenClawConfig, agentId: string): str
     }
     return configured;
   }
+  // Auto model prefix: when enabled and no explicit responsePrefix set,
+  // automatically prepend model name using template variable
+  if (cfg.messages?.autoModelPrefix === true) {
+    return "[{model}]";
+  }
   return undefined;
 }
 

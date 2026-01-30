@@ -10,7 +10,7 @@ import { resolveAgentTimeoutMs } from "../../agents/timeout.js";
 import { dispatchInboundMessage } from "../../auto-reply/dispatch.js";
 import { createReplyDispatcher } from "../../auto-reply/reply/reply-dispatcher.js";
 import {
-  extractShortModelName,
+  formatModelDisplayName,
   type ResponsePrefixContext,
 } from "../../auto-reply/reply/response-prefix-template.js";
 import type { MsgContext } from "../../auto-reply/templating.js";
@@ -498,7 +498,7 @@ export const chatHandlers: GatewayRequestHandlers = {
           },
           onModelSelected: (ctx) => {
             prefixContext.provider = ctx.provider;
-            prefixContext.model = extractShortModelName(ctx.model);
+            prefixContext.model = formatModelDisplayName(ctx.model);
             prefixContext.modelFull = `${ctx.provider}/${ctx.model}`;
             prefixContext.thinkingLevel = ctx.thinkLevel ?? "off";
           },

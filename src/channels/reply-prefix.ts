@@ -2,7 +2,7 @@ import { resolveEffectiveMessagesConfig, resolveIdentityName } from "../agents/i
 import type { OpenClawConfig } from "../config/config.js";
 import type { GetReplyOptions } from "../auto-reply/types.js";
 import {
-  extractShortModelName,
+  formatModelDisplayName,
   type ResponsePrefixContext,
 } from "../auto-reply/reply/response-prefix-template.js";
 
@@ -27,7 +27,7 @@ export function createReplyPrefixContext(params: {
   const onModelSelected = (ctx: ModelSelectionContext) => {
     // Mutate the object directly instead of reassigning to ensure closures see updates.
     prefixContext.provider = ctx.provider;
-    prefixContext.model = extractShortModelName(ctx.model);
+    prefixContext.model = formatModelDisplayName(ctx.model);
     prefixContext.modelFull = `${ctx.provider}/${ctx.model}`;
     prefixContext.thinkingLevel = ctx.thinkLevel ?? "off";
   };
