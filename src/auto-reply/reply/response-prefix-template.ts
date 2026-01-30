@@ -87,6 +87,34 @@ export function extractShortModelName(fullModel: string): string {
 }
 
 /**
+ * Format a model name for display in message prefixes.
+ * Converts technical names like "kimi-for-coding" to user-friendly "Kimi".
+ *
+ * @example
+ * formatModelDisplayName("kimi-code/kimi-for-coding") // "Kimi"
+ * formatModelDisplayName("openai/gpt-4") // "GPT-4"
+ * formatModelDisplayName("anthropic/claude-3-opus") // "Claude"
+ */
+export function formatModelDisplayName(fullModel: string): string {
+  const shortName = extractShortModelName(fullModel);
+  // Known model family mappings for cleaner display names
+  const lower = shortName.toLowerCase();
+  // Check for known model families and return clean names
+  if (lower.includes("kimi")) return "Kimi";
+  if (lower.includes("claude")) return "Claude";
+  if (lower.includes("gpt")) return shortName.replace(/^gpt-/i, "GPT-").toUpperCase();
+  if (lower.includes("gemini")) return "Gemini";
+  if (lower.includes("llama")) return "Llama";
+  if (lower.includes("codex")) return "Codex";
+  if (lower.includes("o1") || lower.includes("o3")) return shortName.toUpperCase();
+  // Default: capitalize first letter of each word (split by hyphen)
+  return shortName
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+/**
  * Check if a template string contains any template variables.
  */
 export function hasTemplateVariables(template: string | undefined): boolean {
