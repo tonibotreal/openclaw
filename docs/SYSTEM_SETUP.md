@@ -52,49 +52,23 @@ sudo apt-get install -y git curl wget tmux htop ufw fail2ban
 
 ## 4. Sudoers Configuration
 
-Create `/etc/sudoers.d/openclaw`:
+The openclaw user needs full sudo access to manage the system. Create `/etc/sudoers.d/openclaw`:
 
+```bash
+sudo visudo -f /etc/sudoers.d/openclaw
 ```
-# Full service management
-openclaw ALL=(root) NOPASSWD: /bin/systemctl *, /usr/bin/systemctl *
 
-# Package management
-openclaw ALL=(root) NOPASSWD: /usr/bin/apt-get *, /usr/bin/apt *, /usr/bin/dpkg *
-
-# File operations in key areas
-openclaw ALL=(root) NOPASSWD: /bin/chown -R openclaw\:openclaw /home/openclaw/*, /bin/chmod * /home/openclaw/*
-openclaw ALL=(root) NOPASSWD: /usr/bin/chown -R openclaw\:openclaw /home/openclaw/*, /usr/bin/chmod * /home/openclaw/*
-
-# Log access
-openclaw ALL=(root) NOPASSWD: /usr/bin/journalctl *, /usr/bin/tail * /var/log/*
-
-# Network & firewall
-openclaw ALL=(root) NOPASSWD: /usr/sbin/ufw *, /usr/bin/tailscale *
-
-# User management (limited)
-openclaw ALL=(root) NOPASSWD: /usr/sbin/usermod *, /usr/sbin/useradd *, /usr/bin/passwd openclaw
-
-# Process management
-openclaw ALL=(root) NOPASSWD: /bin/kill *, /usr/bin/kill *, /usr/bin/pkill *
-
-# Service file edits
-openclaw ALL=(root) NOPASSWD: /bin/sed -i * /etc/systemd/system/*, /bin/cp * /etc/systemd/system/*
-openclaw ALL=(root) NOPASSWD: /usr/bin/vim * /etc/systemd/system/*, /usr/bin/nano * /etc/systemd/system/*
-
-# SSH config
-openclaw ALL=(root) NOPASSWD: /bin/sed -i * /etc/ssh/sshd_config, /bin/systemctl restart sshd
-
-# Cron management
-openclaw ALL=(root) NOPASSWD: /usr/bin/crontab *, /bin/chmod * /etc/cron.d/*
-
-# File deletion for notifications
-openclaw ALL=(root) NOPASSWD: /bin/rm -f /home/openclaw/clawd/notifications/pending.jsonl
+Add this line for full system access:
+```
+openclaw ALL=(root) NOPASSWD: ALL
 ```
 
 Set permissions:
 ```bash
 sudo chmod 440 /etc/sudoers.d/openclaw
 ```
+
+**Note:** This gives the openclaw user full root privileges without password. In production environments, consider using granular permissions instead.
 
 ## 5. GitHub CLI Setup
 
