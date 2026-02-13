@@ -197,7 +197,7 @@ async function fetchWithRedirects(params: {
       res = await fetch(parsedUrl.toString(), {
         method: "GET",
         headers: {
-          Accept: "*/*",
+          Accept: "text/markdown, text/html;q=0.9, */*;q=0.8",
           "User-Agent": params.userAgent,
           "Accept-Language": "en-US,en;q=0.9",
         },
