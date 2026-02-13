@@ -1,4 +1,6 @@
 import { Type } from "@sinclair/typebox";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import type { OpenClawConfig } from "../../config/config.js";
 import {
@@ -33,6 +35,33 @@ import {
 
 export { extractReadableContent } from "./web-fetch-utils.js";
 
+async function saveFetchedContent(params: {
+  url: string;
+  title?: string;
+  content: string;
+  contentType: string;
+  fetchedAt: string;
+}): Promise<string> {
+  const sanitizedUrl = params.url.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 100);
+  const timestamp = new Date().toISOString().split("T")[0];
+  const filename = `${timestamp}_${sanitizedUrl}.md`;
+  const dir = path.join(process.cwd(), "fetched-content");
+  const filepath = path.join(dir, filename);
+
+  const metadata = `---
+url: ${params.url}
+title: ${params.title || "N/A"}
+contentType: ${params.contentType}
+fetchedAt: ${params.fetchedAt}
+---
+
+`;
+
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(filepath, metadata + params.content, "utf-8");
+  return filepath;
+}
+
 const EXTRACT_MODES = ["markdown", "text"] as const;
 
 const DEFAULT_FETCH_MAX_CHARS = 50_000;
@@ -57,6 +86,12 @@ const WebFetchSchema = Type.Object({
     Type.Number({
       description: "Maximum characters to return (truncates when exceeded).",
       minimum: 100,
+    }),
+  ),
+  saveToFile: Type.Optional(
+    Type.Boolean({
+      description: "Save fetched content to a markdown file for persistence.",
+      default: false,
     }),
   ),
 });
@@ -600,6 +635,7 @@ export function createWebFetchTool(options?: {
       const url = readStringParam(params, "url", { required: true });
       const extractMode = readStringParam(params, "extractMode") === "text" ? "text" : "markdown";
       const maxChars = readNumberParam(params, "maxChars", { integer: true });
+      const saveToFile = Boolean(params.saveToFile);
       const result = await runWebFetch({
         url,
         extractMode,
@@ -618,6 +654,18 @@ export function createWebFetchTool(options?: {
         firecrawlStoreInCache: true,
         firecrawlTimeoutSeconds,
       });
+
+      if (saveToFile && result.text) {
+        const savedPath = await saveFetchedContent({
+          url: result.url as string,
+          title: result.title as string | undefined,
+          content: result.text as string,
+          contentType: result.contentType as string,
+          fetchedAt: result.fetchedAt as string,
+        });
+        (result as Record<string, unknown>).savedToFile = savedPath;
+      }
+
       return jsonResult(result);
     },
   };
